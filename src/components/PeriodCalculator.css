@@ -1,0 +1,357 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #ffe0f9;
+  color: #1d1d1f;
+  min-height: 100vh;
+}
+
+.calculator-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-radius: 36px;
+  padding: 3rem;
+  max-width: 860px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: #1d1d1f;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.label-value {
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.date-input {
+  padding: 0.85rem 1.2rem;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.04);
+  color: #1d1d1f;
+  font-size: 1rem;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  position: relative;
+}
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.date-input:focus {
+  background: rgba(0,0,0,0.06);
+}
+
+.slider {
+  width: 100%;
+  margin-top: 0.4rem;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 10px;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ffafe4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.calc-btn {
+  background: #1d1d1f;
+  font-family: Merriweather, serif;
+  padding: 0.9rem 2rem;
+  border-radius: 50px;
+  font-weight: 100;
+  font-size: 1.2rem;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+  letter-spacing: 0.3px;
+}
+.calc-btn:hover {
+  background: #2d2d2f;
+  transform: translateY(-1px);
+}
+.calc-btn:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+}
+
+.right-column .calendar-container {
+  width: 100%;
+}
+
+.calendar-container {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  height: 370px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  min-height: 40px;
+}
+.calendar-header h4 {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  margin: 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-btn {
+  background: transparent;
+  color: #6e6e73;
+  font-size: 1.3rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: 0.2s;
+}
+.nav-btn:hover {
+  background: rgba(0,0,0,0.04);
+  color: #1d1d1f;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day-name {
+  font-weight: 500;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 6px 0;
+  color: #86868b;
+  text-transform: uppercase;
+}
+
+.day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  background: transparent;
+  transition: 0.1s;
+}
+.day.empty {
+  background: transparent;
+}
+
+.period-day {
+  background: #f43f5e;
+  color: #fff;
+  font-weight: 600;
+}
+.fertile-day {
+  background: #10b981;
+  color: #fff;
+  font-weight: 500;
+}
+.ovulation-day {
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  border: 2px solid #fff;
+}
+.next-period {
+  background: #f59e0b;
+  color: #fff;
+  font-weight: 600;
+  border: 2px solid #fff;
+}
+
+.calendar-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #6e6e73;
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.period-dot   { background: #f43f5e; }
+.fertile-dot  { background: #10b981; }
+.ovulation-dot { background: #3b82f6; }
+.next-dot     { background: #f59e0b; }
+
+@media (max-width: 768px) {
+  .calculator-container {
+    padding: 40px 15px !important;
+    align-items: flex-start !important;
+  }
+
+  .glass-card {
+    grid-template-columns: 1fr !important;
+    padding: 1.6rem !important;
+    gap: 1.6rem !important;
+    max-width: 360px !important;
+    width: 92% !important;
+    margin: 0 auto !important;
+    border-radius: 28px !important;
+  }
+
+  .left-column,
+  .right-column {
+    align-items: center !important;
+    text-align: center !important;
+    gap: 1.2rem !important;
+  }
+
+  .title {
+    font-size: 1.8rem !important;
+  }
+
+  .label-text {
+    font-size: 0.8rem !important;
+  }
+
+  .date-input {
+    padding: 0.7rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .slider {
+    height: 5px !important;
+  }
+
+  .calc-btn {
+    font-size: 1rem !important;
+    padding: 0.7rem 1.5rem !important;
+  }
+
+  .calendar-container {
+    height: 355px !important;
+    padding: 1rem !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .calendar-header h4 {
+    font-size: 0.9rem !important;
+  }
+
+  .nav-btn {
+    font-size: 1rem !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .day-name {
+    font-size: 0.65rem !important;
+  }
+
+  .day {
+    font-size: 0.75rem !important;
+    border-radius: 8px !important;
+  }
+
+  .calendar-legend {
+    gap: 0.5rem !important;
+    margin-top: 0.6rem !important;
+  }
+
+  .legend-item {
+    font-size: 0.7rem !important;
+  }
+}
