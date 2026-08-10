@@ -1,54 +1,35 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import "./PeriodCalculator.css";
 
-const addDays = (date, days) => {
-  const r = new Date(date);
-  r.setDate(r.getDate() + days);
-  return r;
-};
+const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const fmtFull = (d) => d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
-const Calendar = ({ highlightDates, currentMonth, setCurrentMonth }) => {
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-  ];
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const prevMonth = () => setCurrentMonth(new Date(year, month - 1, 1));
-  const nextMonth = () => setCurrentMonth(new Date(year, month + 1, 1));
-
-  const blanks = Array(firstDay).fill(null);
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+const Calendar = ({ hl, month, setMonth }) => {
+  const mNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const y = month.getFullYear(), m = month.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const total = new Date(y, m + 1, 0).getDate();
+  const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="calendar-container">
-      <div className="calendar-header">
-        <button onClick={prevMonth} className="nav-btn">←</button>
-        <h4>{monthNames[month]} {year}</h4>
-        <button onClick={nextMonth} className="nav-btn">→</button>
+    <div className="cal">
+      <div className="cal-top">
+        <button onClick={() => setMonth(new Date(y, m - 1))} className="cal-btn">‹</button>
+        <span>{mNames[m]} {y}</span>
+        <button onClick={() => setMonth(new Date(y, m + 1))} className="cal-btn">›</button>
       </div>
-      <div className="calendar-grid">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-          <div key={d} className="day-name">{d}</div>
-        ))}
-        {blanks.map((_, i) => <div key={`b-${i}`} className="day empty" />)}
-        {days.map(day => {
-          const dateObj = new Date(year, month, day);
-          const iso = dateObj.toISOString().split('T')[0];
-          const classes = ["day"];
-          if (highlightDates.periods.includes(iso)) classes.push("period-day");
-          if (highlightDates.fertileStart && highlightDates.fertileEnd) {
-            const start = new Date(highlightDates.fertileStart);
-            const end = new Date(highlightDates.fertileEnd);
-            if (dateObj >= start && dateObj <= end) classes.push("fertile-day");
-          }
-          if (highlightDates.ovulation === iso) classes.push("ovulation-day");
-          if (highlightDates.nextPeriod === iso) classes.push("next-period");
-          return <div key={day} className={classes.join(" ")}>{day}</div>;
+      <div className="cal-g">
+        {["S","M","T","W","T","F","S"].map((d,i) => <div key={i} className="cal-w">{d}</div>)}
+        {Array.from({length:first}).map((_,i)=><div key={`b${i}`} className="cal-c"/>)}
+        {Array.from({length:total},(_,i)=>i+1).map(d=>{
+          const dt = new Date(y,m,d), iso = dt.toISOString().split("T")[0];
+          const cls = ["cal-c"];
+          if(hl.fs&&hl.fe){const s=new Date(hl.fs),e=new Date(hl.fe);if(dt>=s&&dt<=e)cls.push("fertile")}
+          if(hl.ov===iso)cls.push("ovu");
+          if(hl.np===iso)cls.push("nxt");
+          if(iso===today)cls.push("now");
+          return <div key={d} className={cls.join(" ")}>{d}</div>;
         })}
       </div>
     </div>
@@ -56,109 +37,122 @@ const Calendar = ({ highlightDates, currentMonth, setCurrentMonth }) => {
 };
 
 const PeriodCalculator = () => {
-  const [lastPeriod, setLastPeriod] = useState("");
-  const [cycleLength, setCycleLength] = useState(28);
-  const [periodLength, setPeriodLength] = useState(5);
-  const [results, setResults] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [loading, setLoading] = useState(false);
+  const [lp, setLp] = useState("");
+  const [cl, setCl] = useState(28);
+  const [pl, setPl] = useState(5);
+  const [res, setRes] = useState(null);
+  const [cm, setCm] = useState(new Date());
+  const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [modal, setModal] = useState(null);
 
-  const calculate = () => {
-    if (!lastPeriod) return;
-    setLoading(true);
+  useEffect(() => { requestAnimationFrame(() => setReady(true)); }, []);
 
+  const go = () => {
+    if (!lp) return;
+    setBusy(true);
     setTimeout(() => {
-      const lastDate = new Date(lastPeriod);
-      const nextPeriodDate = addDays(lastDate, cycleLength);
-      const ovulationDate = addDays(nextPeriodDate, -14);
-      const fertileStartDate = addDays(ovulationDate, -5);
-      const fertileEndDate = addDays(ovulationDate, 1);
-
-      setResults({
-        nextPeriodISO: nextPeriodDate.toISOString().split("T")[0],
-        ovulationISO: ovulationDate.toISOString().split("T")[0],
-        fertileStartISO: fertileStartDate.toISOString().split("T")[0],
-        fertileEndISO: fertileEndDate.toISOString().split("T")[0],
+      const d = new Date(lp);
+      const np = addDays(d, cl), ov = addDays(np, -14), fs = addDays(ov, -5), fe = addDays(ov, 1);
+      setRes({
+        np: np.toISOString().split("T")[0], ov: ov.toISOString().split("T")[0],
+        fs: fs.toISOString().split("T")[0], fe: fe.toISOString().split("T")[0],
+        npF: fmtFull(np), ovF: fmtFull(ov), fsF: fmt(fs), feF: fmt(fe),
+        days: Math.max(0, Math.ceil((np - new Date()) / 864e5)),
       });
-
-      setCurrentMonth(new Date(nextPeriodDate.getFullYear(), nextPeriodDate.getMonth(), 1));
-      setLoading(false);
-    }, 300);
+      setCm(new Date(fs.getFullYear(), fs.getMonth(), 1));
+      setBusy(false);
+    }, 500);
   };
 
-  const periodDates = lastPeriod ? [lastPeriod] : [];
-
-  const highlightDates = {
-    periods: periodDates,
-    nextPeriod: results?.nextPeriodISO || null,
-    ovulation: results?.ovulationISO || null,
-    fertileStart: results?.fertileStartISO || null,
-    fertileEnd: results?.fertileEndISO || null,
-  };
+  const hl = res ? { np: res.np, ov: res.ov, fs: res.fs, fe: res.fe } : {};
 
   return (
-    <div className="calculator-container">
-      <div className="glass-card">
-        <div className="left-column">
-          <h1 className="title">Cycle Tracker</h1>
+    <div className={`root ${ready ? "on" : ""}`}>
+      <section className="hero">
+        <h1 className="hero-title">Know your body,<br/><span className="hero-italic">own your rhythm.</span></h1>
+        <p className="hero-desc">Predict your period, ovulation, and fertile window.</p>
+      </section>
 
-          <div className="input-group">
-            <label className="label-text">Last Period Start</label>
-            <input
-              type="date"
-              placeholder="dd/mm/yyyy"
-              value={lastPeriod}
-              onChange={(e) => setLastPeriod(e.target.value)}
-              className="date-input"
-            />
+      <div className="shell">
+        {/* Left */}
+        <div className="pan-l">
+          <div className="brand">cycle tracker<span className="dot-pink">.</span></div>
+
+          <label className="lab lab-down">Last period</label>
+          <input type="date" value={lp} onChange={e=>setLp(e.target.value)} className="date-inp"/>
+
+          <div className="sl-wrap">
+            <div className="sl-h"><label className="lab">Cycle length</label><span className="sl-v">{cl}d</span></div>
+            <input type="range" min="21" max="35" value={cl} onChange={e=>setCl(+e.target.value)} className="sl"/>
           </div>
 
-          <div className="input-group">
-            <label className="label-text">
-              Cycle Length: <span className="label-value">{cycleLength} days</span>
-            </label>
-            <input
-              type="range"
-              min="21"
-              max="35"
-              value={cycleLength}
-              onChange={(e) => setCycleLength(Number(e.target.value))}
-              className="slider"
-            />
+          <div className="sl-wrap">
+            <div className="sl-h"><label className="lab">Period length</label><span className="sl-v">{pl}d</span></div>
+            <input type="range" min="2" max="10" value={pl} onChange={e=>setPl(+e.target.value)} className="sl"/>
           </div>
 
-          <div className="input-group">
-            <label className="label-text">
-              Period Length: <span className="label-value">{periodLength} days</span>
-            </label>
-            <input
-              type="range"
-              min="2"
-              max="10"
-              value={periodLength}
-              onChange={(e) => setPeriodLength(Number(e.target.value))}
-              className="slider"
-            />
-          </div>
-
-          <button onClick={calculate} className="calc-btn" disabled={loading}>
-            {loading ? "Predicting…" : "Predict Next Cycle"}
+          <button className="go-btn" onClick={go} disabled={busy||!lp}>
+            {busy ? "Calculating…" : "Predict Next Cycle"}
           </button>
         </div>
 
-        <div className="right-column">
-          <Calendar
-            highlightDates={highlightDates}
-            currentMonth={currentMonth}
-            setCurrentMonth={setCurrentMonth}
-          />
+        {/* Right */}
+        <div className="pan-r">
+          {res ? (
+            <div className="pan-r-content">
+              <div className="rows">
+                <div className="row row-hero">
+                  <div className="row-dot amber"/>
+                  <div className="row-txt">
+                    <span className="row-lab">Next Period</span>
+                    <span className="row-date">{res.npF}</span>
+                  </div>
+                  <span className="row-badge">{res.days}d away</span>
+                </div>
+                <div className="row">
+                  <div className="row-dot blue"/>
+                  <div className="row-txt">
+                    <span className="row-lab">Ovulation</span>
+                    <span className="row-date">{res.ovF}</span>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="row-dot green"/>
+                  <div className="row-txt">
+                    <span className="row-lab">Fertile Window</span>
+                    <span className="row-date">{res.fsF} — {res.feF}</span>
+                  </div>
+      </div>
 
-          <div className="calendar-legend">
-            <div className="legend-item"><span className="legend-dot period-dot"></span> Period</div>
-            <div className="legend-item"><span className="legend-dot fertile-dot"></span> Fertile window</div>
-            <div className="legend-item"><span className="legend-dot ovulation-dot"></span> Ovulation</div>
-            <div className="legend-item"><span className="legend-dot next-dot"></span> Next period</div>
+      {modal && (
+        <div className="modal-bg" onClick={()=>setModal(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <button className="modal-close" onClick={()=>setModal(null)}>✕</button>
+            {modal==="privacy" && <>
+              <h2 className="modal-title">Your Privacy</h2>
+              <p>We don't collect any data. Everything you enter stays right here in your browser. There are no accounts, no servers, no cookies, and no third-party tracking. Your cycle information never leaves your device — period.</p>
+            </>}
+            {modal==="terms" && <>
+              <h2 className="modal-title">Terms of Use</h2>
+              <p>This tool provides estimates based on average cycle patterns and is not a substitute for medical advice. Predictions may not be accurate for everyone. Always consult a healthcare professional for medical concerns.</p>
+            </>}
+            {modal==="about" && <>
+              <h2 className="modal-title">About cycle.</h2>
+              <p>A simple, private period tracker. Built with care to help you understand your body better. No accounts, no data collection — just you and your cycle.</p>
+            </>}
           </div>
+        </div>
+      )}
+    </div>
+              <Calendar hl={hl} month={cm} setMonth={setCm}/>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-ring"/>
+              <p>Enter your last period to<br/>see predictions</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
