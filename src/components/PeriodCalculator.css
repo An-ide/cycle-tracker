@@ -261,7 +261,7 @@ body{
 
   .pan-l{
     border-right:none;border-bottom:1px solid rgba(0,0,0,.05);
-    padding:1.6rem 1.25rem;justify-content:flex-start;gap:2.25rem;
+    padding:1.6rem 1.25rem;justify-content:flex-start;gap:3rem;
   }
   .brand{font-size:1.4rem;margin-bottom:.8rem}
   .lab-down{position:static;margin-top:.4rem}
@@ -271,7 +271,7 @@ body{
   .sl{height:5px}
   .sl::-webkit-slider-thumb{width:24px;height:24px}
   .sl::-moz-range-thumb{width:24px;height:24px}
-  .sl-wrap{margin-bottom:1.5rem}
+  .sl-wrap{margin-bottom:2rem}
   .go-btn{padding:.9rem;font-size:1.05rem;margin-top:.4rem}
 
   .pan-r{height:auto;overflow:visible;padding:1.25rem}
