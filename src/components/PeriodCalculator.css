@@ -271,7 +271,7 @@ body{
   .sl{height:5px}
   .sl::-webkit-slider-thumb{width:24px;height:24px}
   .sl::-moz-range-thumb{width:24px;height:24px}
-  .sl-h{margin-bottom:.65rem}
+  .sl-h{margin-bottom:1rem}
   .go-btn{padding:.9rem;font-size:1.05rem;margin-top:.4rem}
 
   .pan-r{height:auto;overflow:visible;padding:1.25rem}
