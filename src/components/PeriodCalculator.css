@@ -282,7 +282,7 @@ body{
   .row-date{font-size:.9rem}
 
   .cal{background:rgba(0,0,0,.02);border-radius:12px;padding:.7rem}
-  .cal-g{gap:2px}
+  .cal-g{gap:5px}
   .cal-c{font-size:.8rem;padding:.45rem 0}
   .cal-c.fertile,.cal-c.ovu,.cal-c.nxt{border-radius:10px}
 }
