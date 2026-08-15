@@ -25,7 +25,8 @@ const Calendar = ({ hl, month, setMonth }) => {
         {Array.from({length:total},(_,i)=>i+1).map(d=>{
           const dt = new Date(y,m,d), iso = dt.toISOString().split("T")[0];
           const cls = ["cal-c"];
-          if(hl.fs&&hl.fe){const s=new Date(hl.fs),e=new Date(hl.fe);if(dt>=s&&dt<=e)cls.push("fertile")}
+          if(hl.np&&hl.pe){const s=new Date(hl.np+"T00:00:00"),e=new Date(hl.pe+"T00:00:00");if(dt>=s&&dt<=e)cls.push("period")}
+          if(hl.fs&&hl.fe){const s=new Date(hl.fs+"T00:00:00"),e=new Date(hl.fe+"T00:00:00");if(dt>=s&&dt<=e)cls.push("fertile")}
           if(hl.ov===iso)cls.push("ovu");
           if(hl.np===iso)cls.push("nxt");
           if(iso===today)cls.push("now");
@@ -53,11 +54,12 @@ const PeriodCalculator = () => {
     setBusy(true);
     setTimeout(() => {
       const d = new Date(lp);
-      const np = addDays(d, cl), ov = addDays(np, -14), fs = addDays(ov, -5), fe = addDays(ov, 1);
+      const np = addDays(d, cl), pe = addDays(np, pl - 1), ov = addDays(np, -14), fs = addDays(ov, -5), fe = addDays(ov, 1);
       setRes({
-        np: np.toISOString().split("T")[0], ov: ov.toISOString().split("T")[0],
+        np: np.toISOString().split("T")[0], pe: pe.toISOString().split("T")[0],
+        ov: ov.toISOString().split("T")[0],
         fs: fs.toISOString().split("T")[0], fe: fe.toISOString().split("T")[0],
-        npF: fmtFull(np), ovF: fmtFull(ov), fsF: fmt(fs), feF: fmt(fe),
+        npF: fmtFull(np), peF: fmtFull(pe), ovF: fmtFull(ov), fsF: fmt(fs), feF: fmt(fe),
         days: Math.max(0, Math.ceil((np - new Date()) / 864e5)),
       });
       setCm(new Date(fs.getFullYear(), fs.getMonth(), 1));
@@ -65,7 +67,7 @@ const PeriodCalculator = () => {
     }, 500);
   };
 
-  const hl = res ? { np: res.np, ov: res.ov, fs: res.fs, fe: res.fe } : {};
+  const hl = res ? { np: res.np, pe: res.pe, ov: res.ov, fs: res.fs, fe: res.fe } : {};
 
   return (
     <div className={`root ${ready ? "on" : ""}`}>
@@ -103,7 +105,7 @@ const PeriodCalculator = () => {
             <div className="pan-r-content">
               <div className="rows">
                 <div className="row row-hero">
-                  <div className="row-dot amber"/>
+                  <div className="row-dot red"/>
                   <div className="row-txt">
                     <span className="row-lab">Next Period</span>
                     <span className="row-date">{res.npF}</span>
@@ -123,6 +125,17 @@ const PeriodCalculator = () => {
                     <span className="row-lab">Fertile Window</span>
                     <span className="row-date">{res.fsF} — {res.feF}</span>
                   </div>
+                </div>
+              </div>
+              <Calendar hl={hl} month={cm} setMonth={setCm}/>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-ring"/>
+              <p>Enter your last period to<br/>see predictions</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {modal && (
@@ -144,17 +157,6 @@ const PeriodCalculator = () => {
           </div>
         </div>
       )}
-    </div>
-              <Calendar hl={hl} month={cm} setMonth={setCm}/>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <div className="empty-ring"/>
-              <p>Enter your last period to<br/>see predictions</p>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

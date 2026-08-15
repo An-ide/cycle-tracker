@@ -185,6 +185,7 @@ body{
 .row-dot.amber{background:var(--amber)}
 .row-dot.blue{background:var(--blue)}
 .row-dot.green{background:var(--green)}
+.row-dot.red{background:var(--red)}
 
 .row-txt{display:flex;flex-direction:column;gap:.05rem;min-width:0;flex:1}
 .row-lab{font-size:.58rem;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
@@ -213,7 +214,7 @@ body{
   font-size:.72rem;font-weight:500;border-radius:8px;color:var(--dark);transition:background .1s;
   padding:.3rem 0;
 }
-.cal-c:not(:empty):not(.fertile):not(.ovu):not(.nxt):hover{background:rgba(0,0,0,.04)}
+.cal-c:not(:empty):not(.fertile):not(.ovu):not(.nxt):not(.period):hover{background:rgba(0,0,0,.04)}
 
 .cal-c.now{font-weight:800;position:relative}
 .cal-c.now::after{content:'';position:absolute;bottom:2px;width:3px;height:3px;border-radius:50%;background:var(--accent)}
@@ -221,6 +222,7 @@ body{
 .cal-c.fertile{background:var(--green);color:#fff;font-weight:600}
 .cal-c.ovu{background:var(--blue);color:#fff;font-weight:700}
 .cal-c.nxt{background:var(--amber);color:#fff;font-weight:700}
+.cal-c.period{background:var(--red);color:#fff;font-weight:600}
 
 .cal-leg{
   display:flex;gap:.8rem;margin-top:.3rem;padding-top:.4rem;
@@ -231,6 +233,7 @@ body{
 .dot-c.green{background:var(--green)}
 .dot-c.blue{background:var(--blue)}
 .dot-c.amber{background:var(--amber)}
+.dot-c.red{background:var(--red)}
 
 /* ── empty ── */
 .empty-state{
